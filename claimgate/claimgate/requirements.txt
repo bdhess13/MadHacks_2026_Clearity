@@ -1,3 +1,4 @@
+# Use Python 3.12; see the repository README for setup and run instructions.
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
 pymupdf==1.25.1
