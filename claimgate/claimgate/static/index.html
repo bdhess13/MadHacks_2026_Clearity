@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clearity — AI Fraud Detection for Car Insurance Claims</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue-950: #06101f;
+    --blue-900: #0a1c37;
+    --blue-800: #0f2a52;
+    --blue-700: #143a73;
+    --blue-600: #1b4fa8;
+    --blue-500: #2563eb;
+    --blue-400: #3b82f6;
+    --sky-400: #38bdf8;
+    --sky-300: #7dd3fc;
+    --glass: rgba(13, 35, 68, 0.55);
+    --glass-border: rgba(125, 211, 252, 0.18);
+    --text-hi: #eaf3ff;
+    --text-mid: #9db8d9;
+    --text-low: #64809f;
+    --red: #ef4444;      --red-bg: rgba(239, 68, 68, 0.14);   --red-border: rgba(239, 68, 68, 0.45);
+    --orange: #f59e0b;   --orange-bg: rgba(245, 158, 11, 0.14); --orange-border: rgba(245, 158, 11, 0.45);
+    --green: #22c55e;    --green-bg: rgba(34, 197, 94, 0.14);  --green-border: rgba(34, 197, 94, 0.45);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--text-hi);
+    background:
+      radial-gradient(1100px 520px at 85% -10%, rgba(56, 189, 248, 0.16), transparent 60%),
+      radial-gradient(900px 600px at -10% 25%, rgba(37, 99, 235, 0.20), transparent 55%),
+      linear-gradient(160deg, var(--blue-950) 0%, var(--blue-900) 38%, var(--blue-800) 70%, var(--blue-700) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ---------- header ---------- */
+  header { display: flex; align-items: center; justify-content: space-between; padding: 26px 0 8px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-icon {
+    width: 46px; height: 46px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--blue-500), var(--sky-400));
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45);
+  }
+  .brand h1 { font-family: 'Space Grotesk', sans-serif; font-size: 1.55rem; letter-spacing: 0.02em; }
+  .brand h1 span { background: linear-gradient(90deg, var(--sky-300), var(--blue-400)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .brand small { display: block; color: var(--text-low); font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; margin-top: 2px; }
+  .live-pill {
+    font-size: 0.75rem; color: var(--green); background: var(--green-bg);
+    border: 1px solid var(--green-border); padding: 6px 14px; border-radius: 999px; font-weight: 600;
+  }
+
+  /* ---------- hero ---------- */
+  .hero { text-align: center; padding: 54px 0 40px; }
+  .hero h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.9rem, 4.6vw, 3.2rem); font-weight: 700; line-height: 1.15; }
+  .hero h2 .grad { background: linear-gradient(90deg, var(--sky-300) 0%, var(--blue-400) 55%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p { color: var(--text-mid); max-width: 660px; margin: 18px auto 0; line-height: 1.65; font-size: 1.02rem; }
+  .hero p b { color: var(--red); font-weight: 600; }
+
+  .pipeline { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
+  .stage-chip {
+    background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px;
+    padding: 14px 18px; min-width: 220px; backdrop-filter: blur(8px); text-align: left;
+  }
+  .stage-chip .num {
+    font-family: 'Space Grotesk', sans-serif; font-size: 0.7rem; color: var(--sky-300);
+    letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .stage-chip .name { font-weight: 700; margin-top: 4px; font-size: 0.95rem; }
+  .stage-chip .desc { color: var(--text-low); font-size: 0.78rem; margin-top: 4px; line-height: 1.45; }
+
+  /* ---------- upload ---------- */
+  .card {
+    background: var(--glass); border: 1px solid var(--glass-border); border-radius: 22px;
+    backdrop-filter: blur(10px); padding: 28px; box-shadow: 0 18px 50px rgba(2, 8, 23, 0.45);
+  }
+  .dropzone {
+    border: 2px dashed rgba(125, 211, 252, 0.35); border-radius: 16px; padding: 52px 30px;
+    text-align: center; cursor: pointer; transition: all 0.25s ease;
+  }
+  .dropzone:hover, .dropzone.drag { border-color: var(--sky-400); background: rgba(56, 189, 248, 0.07); transform: translateY(-1px); }
+  .dropzone svg { opacity: 0.9; }
+  .dropzone h3 { font-family: 'Space Grotesk', sans-serif; margin-top: 16px; font-size: 1.15rem; }
+  .dropzone p { color: var(--text-low); font-size: 0.85rem; margin-top: 6px; }
+  .cta {
+    margin-top: 20px; display: inline-block; padding: 12px 30px; border: none; border-radius: 12px; cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.98rem; color: #04101f;
+    background: linear-gradient(90deg, var(--sky-300), var(--blue-400));
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4); transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .cta:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(59, 130, 246, 0.55); }
+  .actions { margin-top: 18px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .actions .cta { margin-top: 0; }
+  .cta.secondary { background: rgba(56, 189, 248, 0.12); color: var(--sky-300); border: 1px solid rgba(56, 189, 248, 0.45); box-shadow: none; }
+  .cta.secondary:hover { background: rgba(56, 189, 248, 0.2); box-shadow: none; transform: translateY(-1px); }
+  .actions-note { color: var(--text-low); font-size: 0.75rem; }
+  #file-input { display: none; }
+
+  .spinner-wrap { display: none; text-align: center; padding: 46px 0 12px; }
+  .spinner {
+    width: 44px; height: 44px; margin: 0 auto 16px; border-radius: 50%;
+    border: 3px solid rgba(125, 211, 252, 0.25); border-top-color: var(--sky-400);
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner-wrap p { color: var(--text-mid); font-size: 0.9rem; }
+
+  .error-box { display: none; margin-top: 18px; padding: 14px 18px; border-radius: 12px;
+    background: var(--red-bg); border: 1px solid var(--red-border); color: #fda4a4; font-size: 0.9rem; }
+
+  /* ---------- results ---------- */
+  #results { display: none; margin-top: 34px; }
+  .verdict-banner { border-radius: 20px; padding: 30px 32px; display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
+  .verdict-banner.blocked   { background: linear-gradient(120deg, rgba(239,68,68,0.22), rgba(239,68,68,0.08)); border: 1px solid var(--red-border); }
+  .verdict-banner.suspicious { background: linear-gradient(120deg, rgba(245,158,11,0.22), rgba(245,158,11,0.08)); border: 1px solid var(--orange-border); }
+  .verdict-banner.approved { background: linear-gradient(120deg, rgba(34,197,94,0.2), rgba(34,197,94,0.07)); border: 1px solid var(--green-border); }
+  .verdict-icon {
+    width: 66px; height: 66px; border-radius: 18px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.9rem; flex-shrink: 0;
+  }
+  .blocked .verdict-icon   { background: var(--red-bg);    border: 1px solid var(--red-border); }
+  .suspicious .verdict-icon { background: var(--orange-bg); border: 1px solid var(--orange-border); }
+  .approved .verdict-icon  { background: var(--green-bg);  border: 1px solid var(--green-border); }
+  .verdict-text h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.7rem; letter-spacing: 0.03em; }
+  .blocked   .verdict-text h3 { color: #f87171; }
+  .suspicious .verdict-text h3 { color: #fbbf24; }
+  .approved  .verdict-text h3 { color: #4ade80; }
+  .verdict-text p { color: var(--text-mid); font-size: 0.9rem; margin-top: 6px; max-width: 560px; line-height: 1.55; }
+  .score-box { margin-left: auto; text-align: center; }
+  .score-num { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; }
+  .blocked .score-num   { color: #f87171; }
+  .suspicious .score-num { color: #fbbf24; }
+  .approved .score-num  { color: #4ade80; }
+  .score-label { font-size: 0.7rem; color: var(--text-low); text-transform: uppercase; letter-spacing: 0.16em; }
+
+  .sections { margin-top: 22px; display: grid; gap: 20px; }
+  .section h4 {
+    font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem; margin-bottom: 4px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section h4 .tag { font-size: 0.66rem; padding: 3px 10px; border-radius: 999px; letter-spacing: 0.1em;
+    background: rgba(56, 189, 248, 0.14); color: var(--sky-300); border: 1px solid rgba(56, 189, 248, 0.3); }
+  .section .sub { color: var(--text-low); font-size: 0.8rem; margin-bottom: 14px; }
+
+  .finding {
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 12px;
+    border-left: 4px solid;
+  }
+  .finding.critical { background: var(--red-bg); border-color: var(--red); }
+  .finding.high     { background: rgba(239, 68, 68, 0.09); border-color: #f97316; }
+  .finding.medium   { background: var(--orange-bg); border-color: var(--orange); }
+  .finding-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .finding-head strong { font-size: 0.95rem; }
+  .sev-pill { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; padding: 3px 9px; border-radius: 999px; text-transform: uppercase; }
+  .critical .sev-pill { background: var(--red); color: #fff; }
+  .high .sev-pill     { background: #f97316; color: #fff; }
+  .medium .sev-pill   { background: var(--orange); color: #1a1205; }
+  .page-pill { font-size: 0.7rem; color: var(--text-mid); background: rgba(255,255,255,0.06); padding: 3px 10px; border-radius: 999px; margin-left: auto; }
+  .finding .meta { color: var(--text-mid); font-size: 0.8rem; margin-top: 8px; }
+  .finding .reason { color: var(--text-low); font-size: 0.78rem; margin-top: 4px; }
+  .snippet {
+    margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+    background: rgba(239, 68, 68, 0.1); border: 1px solid var(--red-border); border-radius: 8px;
+    padding: 10px 12px; color: #fca5a5; word-break: break-all; line-height: 1.6;
+  }
+  .snippet b { color: #ef4444; background: rgba(239, 68, 68, 0.28); border-radius: 4px; padding: 1px 5px; font-weight: 600; }
+  .clean-note { color: var(--green); font-size: 0.9rem; background: var(--green-bg); border: 1px solid var(--green-border);
+    border-radius: 12px; padding: 16px 18px; }
+
+  .img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+  .img-card { background: rgba(10, 28, 55, 0.5); border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden; }
+  .img-card img { width: 100%; height: 150px; object-fit: cover; display: block; background: #0a1c37; }
+  .img-card .img-meta { padding: 12px 14px; }
+  .img-badge { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 999px; display: inline-block; margin-bottom: 8px; }
+  .img-badge.ai_generated { background: var(--red-bg); color: #f87171; border: 1px solid var(--red-border); }
+  .img-badge.suspicious  { background: var(--orange-bg); color: #fbbf24; border: 1px solid var(--orange-border); }
+  .img-badge.no_concern  { background: var(--green-bg); color: #4ade80; border: 1px solid var(--green-border); }
+  .img-card .img-meta p { font-size: 0.76rem; color: var(--text-mid); line-height: 1.5; }
+  .img-card .img-meta .dims { color: var(--text-low); font-size: 0.7rem; margin-top: 6px; }
+  .img-card.clickable { cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
+  .img-card.clickable:hover { transform: translateY(-3px); border-color: rgba(239,68,68,0.55); box-shadow: 0 14px 34px rgba(239,68,68,0.25); }
+  .lightbox { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(3, 10, 24, 0.88); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 24px; }
+  .lightbox.open { display: flex; }
+  .lightbox-inner { position: relative; max-width: min(760px, 94vw); width: 100%; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 22px; box-shadow: 0 30px 80px rgba(2, 8, 23, 0.7); }
+  .lightbox-inner img { width: 100%; border-radius: 12px; background: #0a1c37; }
+  .lightbox-close { position: absolute; top: 12px; right: 14px; background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); color: var(--text-hi); width: 34px; height: 34px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; line-height: 1; }
+  .lightbox-close:hover { background: rgba(239,68,68,0.25); border-color: var(--red-border); }
+  .lightbox-meta { margin-top: 14px; }
+  .lightbox-meta .dims { color: var(--text-low); font-size: 0.75rem; margin-top: 8px; }
+  .lightbox-meta p { font-size: 0.85rem; color: var(--text-mid); line-height: 1.6; margin-top: 8px; }
+
+  .sanitized-text {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; white-space: pre-wrap; line-height: 1.7;
+    background: rgba(6, 16, 31, 0.7); border: 1px solid var(--green-border); border-radius: 12px;
+    padding: 18px; color: #c9e8d5; max-height: 340px; overflow-y: auto;
+  }
+
+  .risk-list { list-style: none; }
+  .risk-list li { display: flex; align-items: flex-start; gap: 12px; padding: 11px 0; border-bottom: 1px solid rgba(125, 211, 252, 0.1); font-size: 0.88rem; }
+  .risk-list li:last-child { border-bottom: none; }
+  .risk-weight { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.75rem;
+    min-width: 44px; text-align: center; border-radius: 8px; padding: 4px 6px; margin-top: 1px; }
+  .rw-high { background: var(--red-bg); color: #f87171; border: 1px solid var(--red-border); }
+  .rw-med  { background: var(--orange-bg); color: #fbbf24; border: 1px solid var(--orange-border); }
+
+  footer { text-align: center; color: var(--text-low); font-size: 0.75rem; padding-top: 50px; letter-spacing: 0.05em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#eaf3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Clear<span>ity</span></h1>
+        <small>Deep claim inspection</small>
+      </div>
+    </div>
+    <div class="live-pill">● System Online</div>
+  </header>
+
+  <section class="hero">
+    <h2>What's lurking <span class="grad">beneath the surface</span> of your claim?</h2>
+    <p>Clearity runs a deep-inspection pipeline over every car insurance claim PDF — surfacing the exact
+      <b>hidden white-on-white text</b>, <b>zero-font-size objects</b>, <b>stripped Unicode characters</b>,
+      and <b>AI-generated damage photos</b> — before they reach an adjuster.</p>
+    <div class="pipeline">
+      <div class="stage-chip"><div class="num">Stage 1</div><div class="name">PDF Forensics</div>
+        <div class="desc">White-on-white text · sub-1pt fonts · off-page spans · hidden Unicode Tag blocks</div></div>
+      <div class="stage-chip"><div class="num">Stage 2</div><div class="name">Image Audit</div>
+        <div class="desc">AI-generation signatures in photo metadata + optional Gemini vision analysis</div></div>
+      <div class="stage-chip"><div class="num">Stage 3</div><div class="name">Verdict &amp; Scoring</div>
+        <div class="desc">Weighted risk score → Approved · Suspicious · Blocked, with a sanitized view</div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="dropzone" id="dropzone">
+      <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#7dd3fc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      <h3>Drop a claim PDF here</h3>
+      <p>or click to browse — the 3-stage inspection runs instantly</p>
+    </div>
+    <input type="file" id="file-input" accept="application/pdf,.pdf">
+    <div style="text-align:center;"><button class="cta" id="inspect-btn" disabled>Inspect Claim</button></div>
+    <div class="spinner-wrap" id="spinner"><div class="spinner"></div><p>Running 3-stage deep inspection…</p></div>
+    <div class="error-box" id="error-box"></div>
+  </section>
+
+  <section id="results"></section>
+
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-inner">
+      <button class="lightbox-close" id="lightbox-close" aria-label="Close">×</button>
+      <img id="lightbox-img" src="" alt="Flagged claim image">
+      <div class="lightbox-meta">
+        <span id="lightbox-badge" class="img-badge"></span>
+        <div class="dims" id="lightbox-dims"></div>
+        <div id="lightbox-reasons"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Clearity · Structural PDF forensics + AI image audit + fraud scoring · Built on Databricks Apps</footer>
+</div>
+
+<script>
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('file-input');
+const inspectBtn = document.getElementById('inspect-btn');
+const spinner = document.getElementById('spinner');
+const errorBox = document.getElementById('error-box');
+const results = document.getElementById('results');
+let selectedFile = null;
+let flaggedImages = [];
+
+const lightbox = document.getElementById('lightbox');
+document.getElementById('lightbox-close').addEventListener('click', () => lightbox.classList.remove('open'));
+lightbox.addEventListener('click', e => { if (e.target === lightbox) lightbox.classList.remove('open'); });
+
+function openLightbox(idx) {
+  const im = flaggedImages[idx];
+  if (!im) return;
+  document.getElementById('lightbox-img').src = im.thumbnail;
+  const badge = document.getElementById('lightbox-badge');
+  badge.textContent = im.verdict === 'ai_generated' ? 'AI-Generated' : 'Suspicious';
+  badge.className = 'img-badge ' + im.verdict;
+  document.getElementById('lightbox-dims').textContent = 'Page ' + im.page + ' · ' + im.width + '×' + im.height + 'px';
+  document.getElementById('lightbox-reasons').innerHTML = im.reasons.map(r => '<p>' + esc(r) + '</p>').join('');
+  lightbox.classList.add('open');
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+
+function setFile(f) {
+  errorBox.style.display = 'none';
+  if (!f) return;
+  if (!f.name.toLowerCase().endsWith('.pdf')) {
+    errorBox.textContent = 'Please upload a PDF claim file.';
+    errorBox.style.display = 'block';
+    return;
+  }
+  selectedFile = f;
+  inspectBtn.disabled = false;
+  dropzone.querySelector('h3').textContent = f.name;
+  dropzone.querySelector('p').textContent = (f.size / 1024).toFixed(1) + ' KB — ready to inspect';
+}
+
+dropzone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => setFile(e.target.files[0]));
+['dragenter', 'dragover'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add('drag'); }));
+['dragleave', 'drop'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.remove('drag'); }));
+dropzone.addEventListener('drop', e => setFile(e.dataTransfer.files[0]));
+
+inspectBtn.addEventListener('click', async () => {
+  if (!selectedFile) return;
+  spinner.style.display = 'block';
+  results.style.display = 'none';
+  errorBox.style.display = 'none';
+  inspectBtn.disabled = true;
+  try {
+    const fd = new FormData();
+    fd.append('file', selectedFile);
+    const res = await fetch('/api/inspect-claim', { method: 'POST', body: fd });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'Inspection failed (' + res.status + ')');
+    }
+    render(await res.json());
+  } catch (err) {
+    errorBox.textContent = err.message || 'Something went wrong.';
+    errorBox.style.display = 'block';
+  } finally {
+    spinner.style.display = 'none';
+    inspectBtn.disabled = false;
+  }
+});
+
+const VERDICT_META = {
+  BLOCKED:    { cls: 'blocked',    icon: '⛔', label: 'Blocked' },
+  SUSPICIOUS: { cls: 'suspicious', icon: '⚠️', label: 'Suspicious' },
+  APPROVED:   { cls: 'approved',  icon: '✅', label: 'Approved' },
+};
+
+function render(data) {
+  const v = VERDICT_META[data.verdict] || VERDICT_META.SUSPICIOUS;
+  const s1 = data.stage1, s2 = data.stage2, s3 = data.stage3;
+  let html = '';
+
+  html += `<div class="verdict-banner ${v.cls}">
+      <div class="verdict-icon">${v.icon}</div>
+      <div class="verdict-text">
+        <h3>${v.label}</h3>
+        <p>${esc(data.recommendation)}</p>
+        <p style="margin-top:6px;color:var(--text-low);font-size:0.78rem;">${esc(data.filename)} · ${s1.page_count} page(s) · ${s1.span_count} text spans · ${s2.images.length} image(s) audited</p>
+      </div>
+      <div class="score-box"><div class="score-num">${data.score}</div><div class="score-label">Risk score</div></div>
+    </div>`;
+
+  html += `<div class="actions"><button class="cta secondary" id="download-clean-btn">⬇ Download Cleaned PDF</button><span class="actions-note">Hidden spans redacted · invisible Unicode stripped from visible text</span></div>`;
+
+  html += `<div class="sections">
+    <div class="card section">
+      <h4>Stage 1 · Structural PDF Forensics <span class="tag">pymupdf</span></h4>
+      <div class="sub">Every text span scanned for invisible or out-of-bounds content</div>`;
+  if (s1.findings.length === 0) {
+    html += `<div class="clean-note">✓ No hidden text found — no white-on-white spans, no sub-1pt fonts, no off-page text, no hidden Unicode.</div>`;
+  } else {
+    s1.findings.forEach(f => {
+      html += `<div class="finding ${f.severity}">
+        <div class="finding-head"><span class="sev-pill">${f.severity}</span><strong>${esc(f.label)}</strong><span class="page-pill">Page ${f.page}</span></div>
+        <div class="meta">${esc(f.detail)}</div>
+        <div class="snippet">${esc(f.preview).replace(/\u3010(U\+[0-9A-F]{4})\u3011/g, '<b>$1</b>')}</div>
+        <div class="reason">${esc(f.reason)}</div>
+      </div>`;
+    });
+  }
+  html += `</div>`;
+
+  const concernImgs = s2.images.filter(im => im.verdict !== 'no_concern');
+  flaggedImages = concernImgs;
+  if (concernImgs.length > 0) {
+    html += `<div class="card section">
+    <h4>Stage 2 · Image Audit <span class="tag">${esc(s2.analyzer)}</span></h4>
+    <div class="sub">Photos flagged for concern — click any image for a closer look</div>
+    <div class="img-grid">`;
+    concernImgs.forEach((im, idx) => {
+      const badge = im.verdict === 'ai_generated' ? 'AI-Generated' : 'Suspicious';
+      html += `<div class="img-card clickable" data-idx="${idx}">
+        <img src="${im.thumbnail}" alt="Flagged image on page ${im.page}">
+        <div class="img-meta"><span class="img-badge ${im.verdict}">${badge}</span>
+          ${im.reasons.map(r => `<p>${esc(r)}</p>`).join('')}
+          <div class="dims">Page ${im.page} · ${im.width}×${im.height}px — click to enlarge</div>
+        </div></div>`;
+    });
+    html += `</div>`;
+    html += `</div>`;
+  }
+
+  html += `<div class="card section">
+    <h4>Stage 3 · Sanitized View <span class="tag">hidden content stripped</span></h4>
+    <div class="sub">What a reader actually sees — hidden spans removed, invisible Unicode stripped</div>
+    <div class="sanitized-text">${s1.sanitized_text.trim() ? esc(s1.sanitized_text) : '(no visible text content)'}</div>
+  </div>`;
+
+  html += `<div class="card section">
+    <h4>Risk Factors <span class="tag">weighted</span></h4>
+    <div class="sub">Contributors to the final verdict</div>`;
+  if (s3.risk_factors.length === 0) {
+    html += `<div class="clean-note">✓ Zero risk factors — claim is structurally clean.</div>`;
+  } else {
+    html += `<ul class="risk-list">`;
+    s3.risk_factors.forEach(rf => {
+      html += `<li><span class="risk-weight ${rf.weight >= 4 ? 'rw-high' : 'rw-med'}">+${rf.weight}</span>
+        <div><strong>${esc(rf.label)}</strong> <span style="color:var(--text-low)">(page ${rf.page})</span><br>
+        <span style="color:var(--text-mid)">${esc(rf.detail)}</span></div></li>`;
+    });
+    html += `</ul>`;
+  }
+  html += `</div></div>`;
+
+  results.innerHTML = html;
+  results.style.display = 'block';
+  results.querySelectorAll('.img-card.clickable').forEach(el => {
+    el.addEventListener('click', () => openLightbox(parseInt(el.dataset.idx, 10)));
+  });
+  const dlBtn = results.querySelector('#download-clean-btn');
+  if (dlBtn) {
+    dlBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+      const orig = dlBtn.textContent;
+      dlBtn.disabled = true;
+      dlBtn.textContent = 'Cleaning…';
+      try {
+        const fd = new FormData();
+        fd.append('file', selectedFile);
+        const res = await fetch('/api/clean-claim', { method: 'POST', body: fd });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || 'Cleaning failed (' + res.status + ')');
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'cleaned_' + selectedFile.name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      } catch (err) {
+        errorBox.textContent = err.message || 'Something went wrong while cleaning.';
+        errorBox.style.display = 'block';
+      } finally {
+        dlBtn.disabled = false;
+        dlBtn.textContent = orig;
+      }
+    });
+  }
+  results.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

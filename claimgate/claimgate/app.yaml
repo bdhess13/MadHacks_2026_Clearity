@@ -1,0 +1,9 @@
+command:
+  - python
+  - app.py
+
+# To enable Stage 2 Gemini vision analysis, create a secret scope/key and
+# uncomment the following (falls back to metadata-only analysis without it):
+# env:
+#   - name: GEMINI_API_KEY
+#     value: "{{secretscope/claimgate/gemini_key}}"
