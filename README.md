@@ -5,27 +5,29 @@ and suspicious images.
 
 ## Run locally
 
-Use **Python 3.12**. The pinned Pillow version may not install cleanly with
-newer Python versions.
+Use **Python 3.14**. The pinned dependencies include wheels for Python 3.14.
 
-From the repository root, run:
+These commands resolve the repository root with Git, so you can paste them
+from any folder inside the repo. The environment is created at the repository
+root, outside the app directory watched by Uvicorn.
 
 ```bash
-cd claimgate/claimgate
-python3.12 -m venv .venv
-source .venv/bin/activate
+python3.14 -m venv "$(git rev-parse --show-toplevel)/.venv"
+source "$(git rev-parse --show-toplevel)/.venv/bin/activate"
+cd "$(git rev-parse --show-toplevel)/claimgate/claimgate"
+python --version
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 python -m uvicorn app:app --reload
 ```
 
-On Windows PowerShell, use `py -3.12` to create the environment and activate it
-with `.venv\Scripts\Activate.ps1`:
+On Windows PowerShell:
 
 ```powershell
-cd claimgate/claimgate
-py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
+py -3.14 -m venv "$(git rev-parse --show-toplevel)\.venv"
+. "$(git rev-parse --show-toplevel)\.venv\Scripts\Activate.ps1"
+Set-Location "$(git rev-parse --show-toplevel)\claimgate\claimgate"
+python --version
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 python -m uvicorn app:app --reload
@@ -60,8 +62,13 @@ $env:GEMINI_API_KEY = "your-api-key"
 
 ## Troubleshooting
 
-- If `python3.12` is not found on macOS or Linux, install Python 3.12 and retry.
-  On macOS with Homebrew, use `brew install python@3.12`.
+- If `python3.14` is not found on macOS or Linux, install Python 3.14 and retry.
+  On macOS with Homebrew, use `brew install python@3.14`.
+- If using an existing virtual environment, create a new one with the Python
+  version you intend to run. Keep it at the repository root, not inside
+  `claimgate/claimgate`. If Uvicorn logs that it detected changes under a
+  `.venv` directory, stop the server, activate the repository-root environment,
+  install dependencies, and start it again.
 - If `pip` reports an “externally-managed-environment” error, make sure the
   virtual environment is activated and install packages with
   `python -m pip install -r requirements.txt`.
